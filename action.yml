@@ -1,36 +1,39 @@
+---
 apiVersion: automation.cloudbees.io/v1alpha1
-kind: Action
-metadata:
-  name: 'manual-approval-for-user'
-  description: 'An action that requires manual approval from a specific user before continuing'
-spec:
-  inputs:
-    approverEmail:
-      description: 'The email address of the user who must approve the action'
-      required: true
-      default: 'ashok.alogicfocus@gmail.com'
-    approvalMessage:
-      description: 'The message displayed when waiting for approval'
-      required: true
-      default: 'Approval needed to proceed with the workflow.'
-  outputs:
-    approvalStatus:
-      description: 'The status of the approval'
-      value: 'pending'
-  run:
-    using: 'composite'
-    steps:
-      - name: 'request-approval'
-        run: |
-          echo "Requesting approval from ${{ inputs.approverEmail }}"
-          echo "${{ inputs.approvalMessage }}"
-
-          # Placeholder logic for integration with an approval service or system
-          if [ "$APPROVED_BY" == "${{ inputs.approverEmail }}" ]; then
-            echo "Approval granted by $APPROVED_BY"
-            echo "::set-output name=approvalStatus::approved"
-          else
-            echo "Approval still pending or denied."
-            echo "::set-output name=approvalStatus::pending"
-          fi
-        shell: bash
+kind: action
+name: Manual Workflow Approval
+description: Pause a workflow and get user approval to continue
+branding:
+  icon: pause
+  color: yellow
+inputs:
+  approvers:
+    description: Required approvers
+    required: true
+  secret:
+    description: Secret
+    required: true
+  minimum-approvals:
+    description: Minimum number of approvals to progress workflow
+    required: false
+  timeout-minutes:
+    description: Force timeout of your workflow pause
+    required: false
+  issue-title:
+    description: The custom subtitle for the issue
+    required: false
+  issue-body:
+    description: The custom body for the issue
+    required: false
+  exclude-workflow-initiator-as-approver:
+    description: Whether or not to filter out the user who initiated the workflow as an approver if they are in the approvers list
+    default: false
+  additional-approved-words:
+    description: Comma separated list of words that can be used to approve beyond the defaults.
+    default: ''
+  additional-denied-words:
+    description: Comma separated list of words that can be used to deny beyond the defaults.
+    default: ''
+runs:
+  using: docker
+  image: docker://ghcr.io/trstringer/manual-approval:1.9.1
