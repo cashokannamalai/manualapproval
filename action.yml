@@ -1,3 +1,6 @@
+---
+apiVersion: automation.cloudbees.io/v1alpha1
+kind: action
 name: 'Manual Approval for User'
 description: 'An action that requires manual approval from a specific user before continuing'
 
