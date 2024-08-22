@@ -1,40 +1,36 @@
----
 apiVersion: automation.cloudbees.io/v1alpha1
-kind: action
-name: 'Manual Approval for User'
-description: 'An action that requires manual approval from a specific user before continuing'
+kind: Action
+metadata:
+  name: 'manual-approval-for-user'
+  description: 'An action that requires manual approval from a specific user before continuing'
+spec:
+  inputs:
+    approverEmail:
+      description: 'The email address of the user who must approve the action'
+      required: true
+      default: 'ashok.alogicfocus@gmail.com'
+    approvalMessage:
+      description: 'The message displayed when waiting for approval'
+      required: true
+      default: 'Approval needed to proceed with the workflow.'
+  outputs:
+    approvalStatus:
+      description: 'The status of the approval'
+      value: 'pending'
+  run:
+    using: 'composite'
+    steps:
+      - name: 'request-approval'
+        run: |
+          echo "Requesting approval from ${{ inputs.approverEmail }}"
+          echo "${{ inputs.approvalMessage }}"
 
-inputs:
-  approver_email:
-    description: 'The email address of the user who must approve the action'
-    required: true
-    default: 'ashok.alogicfocus@gmail.com'
-  approval_message:
-    description: 'The message displayed when waiting for approval'
-    required: true
-    default: 'Approval needed to proceed with the workflow.'
-
-outputs:
-  approval_status:
-    description: 'The status of the approval'
-    value: 'pending'
-
-runs:
-  using: 'composite'
-  steps:
-    - run: |
-        echo "Requesting approval from ${{ inputs.approver_email }}"
-        echo "${{ inputs.approval_message }}"
-        
-        # Here you would include logic that integrates with a service or a custom solution
-        # to send the approval request to the specific user.
-        
-        # This is a placeholder simulating approval logic.
-        if [ "$APPROVED_BY" == "${{ inputs.approver_email }}" ]; then
-          echo "Approval granted by $APPROVED_BY"
-          echo "::set-output name=approval_status::approved"
-        else
-          echo "Approval still pending or denied."
-          echo "::set-output name=approval_status::pending"
-        fi
-      shell: bash
+          # Placeholder logic for integration with an approval service or system
+          if [ "$APPROVED_BY" == "${{ inputs.approverEmail }}" ]; then
+            echo "Approval granted by $APPROVED_BY"
+            echo "::set-output name=approvalStatus::approved"
+          else
+            echo "Approval still pending or denied."
+            echo "::set-output name=approvalStatus::pending"
+          fi
+        shell: bash
